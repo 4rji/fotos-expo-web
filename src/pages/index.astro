@@ -1,0 +1,463 @@
+---
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import path from "node:path";
+
+const galleryDir = path.resolve("public/gallery");
+const imageExtensions = new Set([
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".webp",
+  ".avif",
+  ".gif",
+  ".svg"
+]);
+
+let items = [];
+
+if (existsSync(galleryDir)) {
+  const files = readdirSync(galleryDir).sort();
+  const imageFiles = files.filter((file) => {
+    const ext = path.extname(file).toLowerCase();
+    return imageExtensions.has(ext);
+  });
+
+  items = imageFiles.map((file, index) => {
+    const base = file.slice(0, -path.extname(file).length);
+    const descriptionPath = path.join(galleryDir, `${base}.txt`);
+    const fallback = `Description ${String(index + 1).padStart(2, "0")}: Add your photo details here.`;
+
+    const description = existsSync(descriptionPath)
+      ? readFileSync(descriptionPath, "utf8").trim() || fallback
+      : fallback;
+
+    return {
+      title: `Photo ${String(index + 1).padStart(2, "0")}`,
+      src: `/gallery/${file}`,
+      description
+    };
+  });
+}
+
+const initialItem = items[0] ?? null;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Photo Gallery Exhibition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Work+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #000;
+        --text: #f8f8f8;
+        --text-muted: rgba(248, 248, 248, 0.72);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: var(--bg);
+      }
+
+      body {
+        color: var(--text);
+        font-family: "Work Sans", "Segoe UI", sans-serif;
+      }
+
+      .gallery {
+        position: relative;
+        min-height: 100vh;
+        padding: 16px;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+      }
+
+      .title,
+      .frame,
+      .controls {
+        opacity: 0;
+        transition: opacity 0.8s ease;
+      }
+
+      .gallery.started .title,
+      .gallery.started .frame,
+      .gallery.started .controls {
+        opacity: 1;
+      }
+
+      .title {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        margin: 0;
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: clamp(1.3rem, 2.5vw, 2.2rem);
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        z-index: 3;
+      }
+
+      .frame {
+        margin: 0;
+        width: min(95vw, 1400px);
+        height: min(85vh, 900px);
+        display: grid;
+        place-items: center;
+      }
+
+      .photo {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        filter: drop-shadow(0 0 24px rgba(255, 255, 255, 0.08));
+      }
+
+      .caption {
+        position: fixed;
+        left: 50%;
+        bottom: 28px;
+        transform: translateX(-50%);
+        width: min(90vw, 900px);
+        text-align: center;
+        opacity: 0;
+        transition: opacity 0.8s ease;
+        z-index: 3;
+      }
+
+      .gallery.started .caption.visible {
+        opacity: 1;
+      }
+
+      .caption-title {
+        margin: 0 0 8px;
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+        letter-spacing: 0.06em;
+      }
+
+      .caption-text {
+        margin: 0;
+        font-size: clamp(0.85rem, 1.6vw, 1rem);
+        line-height: 1.65;
+        color: var(--text-muted);
+        white-space: pre-line;
+      }
+
+      .controls {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        z-index: 4;
+        display: flex;
+        gap: 8px;
+        pointer-events: none;
+      }
+
+      .gallery.started .controls {
+        pointer-events: auto;
+      }
+
+      .btn {
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        background: rgba(0, 0, 0, 0.45);
+        color: var(--text);
+        padding: 10px 14px;
+        cursor: pointer;
+        font-size: 0.82rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .btn[disabled] {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .intro {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        z-index: 8;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+      }
+
+      .intro.hidden {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.55s ease, visibility 0.55s linear;
+      }
+
+      .curtain-panel {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 50%;
+        background: linear-gradient(90deg, #0c0c0c, #000);
+        transition: transform 1.15s cubic-bezier(0.15, 0.9, 0.2, 1);
+      }
+
+      .curtain-left {
+        left: 0;
+      }
+
+      .curtain-right {
+        right: 0;
+        background: linear-gradient(270deg, #0c0c0c, #000);
+      }
+
+      .intro.opening .curtain-left {
+        transform: translateX(-100%);
+      }
+
+      .intro.opening .curtain-right {
+        transform: translateX(100%);
+      }
+
+      .intro-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        padding: 24px;
+        transition: opacity 0.35s ease;
+      }
+
+      .intro.opening .intro-content {
+        opacity: 0;
+      }
+
+      .intro-kicker {
+        margin: 0 0 10px;
+        color: var(--text-muted);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        font-size: 0.78rem;
+      }
+
+      .intro-title {
+        margin: 0 0 24px;
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: clamp(2rem, 5vw, 4.2rem);
+        font-weight: 500;
+        letter-spacing: 0.06em;
+      }
+
+      .start-btn {
+        font-size: 0.85rem;
+        padding: 12px 22px;
+      }
+
+      .intro-note {
+        margin: 14px 0 0;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        letter-spacing: 0.03em;
+      }
+
+      .empty {
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 1rem;
+        line-height: 1.7;
+      }
+
+      @media (max-width: 700px) {
+        .title {
+          top: 14px;
+          left: 14px;
+        }
+
+        .controls {
+          right: 14px;
+          bottom: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main
+      class="gallery"
+      data-items={JSON.stringify(items)}
+      data-count={items.length}
+    >
+      <h1 class="title">Photo Gallery</h1>
+
+      {
+        initialItem ? (
+          <>
+            <section id="intro" class="intro">
+              <div class="curtain-panel curtain-left"></div>
+              <div class="curtain-panel curtain-right"></div>
+              <div class="intro-content">
+                <p class="intro-kicker">Photo Exhibition</p>
+                <h2 class="intro-title">Gallery</h2>
+                <button id="start-btn" class="btn start-btn" type="button">
+                  Start Exhibition
+                </button>
+                <p class="intro-note">Launches in fullscreen if available.</p>
+              </div>
+            </section>
+            <figure class="frame">
+              <img
+                id="photo"
+                class="photo"
+                src={initialItem.src}
+                alt={initialItem.title}
+              />
+            </figure>
+            <section id="caption" class="caption">
+              <h2 id="caption-title" class="caption-title">{initialItem.title}</h2>
+              <p id="caption-text" class="caption-text">{initialItem.description}</p>
+            </section>
+            <div class="controls">
+              <button id="prev-btn" class="btn" type="button">Prev</button>
+              <button id="next-btn" class="btn" type="button">Next</button>
+              <button id="auto-on-btn" class="btn" type="button">Auto On</button>
+              <button id="auto-off-btn" class="btn" type="button" disabled>
+                Auto Off
+              </button>
+            </div>
+          </>
+        ) : (
+          <p class="empty">
+            Add your files in <code>public/gallery</code>:
+            <br />
+            <code>photo-01.jpg</code> + <code>photo-01.txt</code>
+          </p>
+        )
+      }
+    </main>
+
+    <script is:inline>
+      (() => {
+        const root = document.querySelector(".gallery");
+        if (!root) return;
+
+        const rawItems = root.dataset.items || "[]";
+        const items = JSON.parse(rawItems);
+        if (!Array.isArray(items) || !items.length) return;
+
+        const photo = document.getElementById("photo");
+        const caption = document.getElementById("caption");
+        const title = document.getElementById("caption-title");
+        const text = document.getElementById("caption-text");
+        const prevBtn = document.getElementById("prev-btn");
+        const nextBtn = document.getElementById("next-btn");
+        const autoOnBtn = document.getElementById("auto-on-btn");
+        const autoOffBtn = document.getElementById("auto-off-btn");
+        const intro = document.getElementById("intro");
+        const startBtn = document.getElementById("start-btn");
+
+        let index = 0;
+        let started = false;
+        let captionTimer = null;
+        let autoTimer = null;
+        const AUTO_INTERVAL_MS = 10000;
+
+        const showCaptionWithDelay = () => {
+          caption.classList.remove("visible");
+          window.clearTimeout(captionTimer);
+          captionTimer = window.setTimeout(() => {
+            caption.classList.add("visible");
+          }, 5000);
+        };
+
+        const render = (nextIndex) => {
+          index = (nextIndex + items.length) % items.length;
+          const item = items[index];
+          photo.src = item.src;
+          photo.alt = item.title;
+          title.textContent = item.title;
+          text.textContent = item.description;
+          showCaptionWithDelay();
+        };
+
+        const syncAutoButtons = () => {
+          const autoIsOn = autoTimer !== null;
+          if (autoOnBtn) autoOnBtn.disabled = autoIsOn;
+          if (autoOffBtn) autoOffBtn.disabled = !autoIsOn;
+        };
+
+        const startAuto = () => {
+          if (!started || autoTimer !== null) return;
+          autoTimer = window.setInterval(() => {
+            render(index + 1);
+          }, AUTO_INTERVAL_MS);
+          syncAutoButtons();
+        };
+
+        const stopAuto = () => {
+          if (autoTimer !== null) {
+            window.clearInterval(autoTimer);
+            autoTimer = null;
+          }
+          syncAutoButtons();
+        };
+
+        const goPrev = () => render(index - 1);
+        const goNext = () => render(index + 1);
+
+        prevBtn?.addEventListener("click", goPrev);
+        nextBtn?.addEventListener("click", goNext);
+        autoOnBtn?.addEventListener("click", startAuto);
+        autoOffBtn?.addEventListener("click", stopAuto);
+
+        const startExhibition = () => {
+          if (started) return;
+          started = true;
+          root.classList.add("started");
+          render(0);
+          intro?.classList.add("opening");
+          window.setTimeout(() => {
+            intro?.classList.add("hidden");
+          }, 1200);
+        };
+
+        startBtn?.addEventListener("click", async () => {
+          if (!document.fullscreenElement) {
+            try {
+              await document.documentElement.requestFullscreen();
+            } catch (_error) {
+              // Continue even if fullscreen is denied.
+            }
+          }
+          startExhibition();
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (!started) {
+            if (event.key === "Enter") startBtn?.click();
+            return;
+          }
+          if (event.key === "ArrowRight") goNext();
+          if (event.key === "ArrowLeft") goPrev();
+          if (event.code === "Space") {
+            event.preventDefault();
+            goNext();
+          }
+        });
+
+        syncAutoButtons();
+      })();
+    </script>
+  </body>
+</html>
