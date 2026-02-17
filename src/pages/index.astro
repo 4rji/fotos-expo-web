@@ -59,6 +59,7 @@ const initialItem = items[0] ?? null;
         --bg: #000;
         --text: #f8f8f8;
         --text-muted: rgba(248, 248, 248, 0.72);
+        --header-height: 92px;
       }
 
       * {
@@ -80,29 +81,44 @@ const initialItem = items[0] ?? null;
       .gallery {
         position: relative;
         min-height: 100vh;
-        padding: 16px;
-        display: grid;
-        place-items: center;
+        padding: 10px 16px 16px;
+        display: flex;
+        flex-direction: column;
         overflow: hidden;
       }
 
-      .title,
+      .header-bar,
       .frame,
       .controls {
         opacity: 0;
         transition: opacity 0.8s ease;
       }
 
-      .gallery.started .title,
+      .gallery.started .header-bar,
       .gallery.started .frame,
       .gallery.started .controls {
         opacity: 1;
       }
 
+      .header-bar {
+        position: relative;
+        z-index: 4;
+        width: 100%;
+        display: grid;
+        grid-template-columns: max-content minmax(0, 1fr);
+        align-items: center;
+        gap: 12px;
+        height: var(--header-height);
+        padding: 4px 8px 12px;
+        background: linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0.94),
+          rgba(0, 0, 0, 0.72)
+        );
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
       .title {
-        position: fixed;
-        top: 20px;
-        left: 20px;
         margin: 0;
         font-family: "Cormorant Garamond", Georgia, serif;
         font-size: clamp(1.3rem, 2.5vw, 2.2rem);
@@ -110,52 +126,85 @@ const initialItem = items[0] ?? null;
         letter-spacing: 0.08em;
         text-transform: uppercase;
         color: var(--text-muted);
-        z-index: 3;
+      }
+
+      .top-description {
+        margin: 0;
+        font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+        letter-spacing: 0.03em;
+        color: var(--text-muted);
+        white-space: normal;
+        line-height: 1.35;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        opacity: 0;
+        transform: translateY(-6px);
+        transition: opacity 2.5s ease, transform 2.5s ease;
+      }
+
+      .gallery.desc-on-top .top-description {
+        opacity: 0.96;
+        transform: translateY(0);
       }
 
       .frame {
         margin: 0;
-        width: min(95vw, 1400px);
-        height: min(85vh, 900px);
+        flex: 1;
+        width: 100%;
         display: grid;
         place-items: center;
       }
 
       .photo {
-        max-width: 100%;
-        max-height: 100%;
+        max-width: min(95vw, 1400px);
+        max-height: calc(100vh - var(--header-height) - 44px);
         width: auto;
         height: auto;
         object-fit: contain;
         filter: drop-shadow(0 0 24px rgba(255, 255, 255, 0.08));
+        opacity: 1;
+        transition: opacity 2.5s ease;
       }
 
-      .caption {
+      .gallery.auto-description .photo {
+        opacity: 0;
+      }
+
+      .gallery.instant-hide .photo {
+        transition-duration: 0s;
+      }
+
+      .stage-description {
         position: fixed;
         left: 50%;
-        bottom: 28px;
-        transform: translateX(-50%);
+        top: 50%;
+        transform: translate(-50%, -50%);
         width: min(90vw, 900px);
         text-align: center;
         opacity: 0;
-        transition: opacity 0.8s ease;
-        z-index: 3;
+        transition: opacity 2.5s ease, transform 2.5s ease;
+        z-index: 5;
+        pointer-events: none;
       }
 
-      .gallery.started .caption.visible {
+      .gallery.auto-description .stage-description {
         opacity: 1;
+        transform: translate(-50%, -50%);
       }
 
-      .caption-title {
-        margin: 0 0 8px;
+      .stage-title {
+        margin: 0 0 12px;
         font-family: "Cormorant Garamond", Georgia, serif;
-        font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+        font-size: clamp(1.2rem, 2.6vw, 2rem);
         letter-spacing: 0.06em;
       }
 
-      .caption-text {
+      .stage-text {
         margin: 0;
-        font-size: clamp(0.85rem, 1.6vw, 1rem);
+        font-size: clamp(0.85rem, 1.8vw, 1.05rem);
         line-height: 1.65;
         color: var(--text-muted);
         white-space: pre-line;
@@ -186,9 +235,10 @@ const initialItem = items[0] ?? null;
         text-transform: uppercase;
       }
 
-      .btn[disabled] {
-        opacity: 0.4;
-        cursor: not-allowed;
+      .mini-btn {
+        padding: 8px 10px;
+        font-size: 0.7rem;
+        letter-spacing: 0.06em;
       }
 
       .auto-mode {
@@ -338,14 +388,24 @@ const initialItem = items[0] ?? null;
       }
 
       @media (max-width: 700px) {
-        .title {
-          top: 14px;
-          left: 14px;
+        :root {
+          --header-height: 122px;
+        }
+
+        .header-bar {
+          gap: 8px;
+          grid-template-columns: 1fr;
+          align-items: center;
+          padding: 4px 4px 10px;
         }
 
         .controls {
           right: 14px;
           bottom: 14px;
+        }
+
+        .photo {
+          max-height: calc(100vh - var(--header-height) - 52px);
         }
       }
     </style>
@@ -356,7 +416,10 @@ const initialItem = items[0] ?? null;
       data-items={JSON.stringify(items)}
       data-count={items.length}
     >
-      <h1 class="title">Photo Gallery</h1>
+      <header class="header-bar">
+        <h1 class="title">Photo Gallery</h1>
+        <p id="top-description" class="top-description"></p>
+      </header>
 
       {
         initialItem ? (
@@ -381,11 +444,12 @@ const initialItem = items[0] ?? null;
                 alt={initialItem.title}
               />
             </figure>
-            <section id="caption" class="caption">
-              <h2 id="caption-title" class="caption-title">{initialItem.title}</h2>
-              <p id="caption-text" class="caption-text">{initialItem.description}</p>
+            <section id="stage-description" class="stage-description">
+              <h2 id="stage-title" class="stage-title">{initialItem.title}</h2>
+              <p id="stage-text" class="stage-text">{initialItem.description}</p>
             </section>
             <div class="controls">
+              <button id="fs-btn" class="btn mini-btn" type="button">Full</button>
               <button id="prev-btn" class="btn" type="button">Prev</button>
               <button id="next-btn" class="btn" type="button">Next</button>
               <div class="auto-mode">
@@ -422,11 +486,12 @@ const initialItem = items[0] ?? null;
         if (!Array.isArray(items) || !items.length) return;
 
         const photo = document.getElementById("photo");
-        const caption = document.getElementById("caption");
-        const title = document.getElementById("caption-title");
-        const text = document.getElementById("caption-text");
+        const topDescription = document.getElementById("top-description");
+        const stageTitle = document.getElementById("stage-title");
+        const stageText = document.getElementById("stage-text");
         const prevBtn = document.getElementById("prev-btn");
         const nextBtn = document.getElementById("next-btn");
+        const fsBtn = document.getElementById("fs-btn");
         const autoToggle = document.getElementById("auto-toggle");
         const autoState = document.getElementById("auto-state");
         const intro = document.getElementById("intro");
@@ -434,55 +499,160 @@ const initialItem = items[0] ?? null;
 
         let index = 0;
         let started = false;
-        let captionTimer = null;
+        let phaseTimer = null;
         let autoTimer = null;
-        const AUTO_INTERVAL_MS = 10000;
+        let autoEnabled = false;
+        let autoToken = 0;
+        const DESCRIPTION_PHASE_MS = 3000;
+        const PHOTO_TRANSITION_MS = 2500;
+        const AUTO_PHOTO_MS = 5000;
 
-        const showCaptionWithDelay = () => {
-          caption.classList.remove("visible");
-          window.clearTimeout(captionTimer);
-          captionTimer = window.setTimeout(() => {
-            caption.classList.add("visible");
-          }, 5000);
+        const clearPhaseTimer = () => {
+          if (phaseTimer !== null) {
+            window.clearTimeout(phaseTimer);
+            phaseTimer = null;
+          }
         };
 
-        const render = (nextIndex) => {
-          index = (nextIndex + items.length) % items.length;
-          const item = items[index];
+        const clearAutoTimer = () => {
+          if (autoTimer !== null) {
+            window.clearTimeout(autoTimer);
+            autoTimer = null;
+          }
+        };
+
+        const clearAllTimers = () => {
+          clearPhaseTimer();
+          clearAutoTimer();
+        };
+
+        const formatTopDescription = (description) => {
+          const compact = description
+            .split(/\r?\n/)
+            .map((line) => line.trim())
+            .filter(Boolean)
+            .join(" · ");
+          const maxChars = window.matchMedia("(max-width: 700px)").matches
+            ? 130
+            : 230;
+          return compact.length > maxChars
+            ? `${compact.slice(0, maxChars).trimEnd()}...`
+            : compact;
+        };
+
+        const setTopDescription = (description) => {
+          if (!topDescription) return;
+          topDescription.textContent = formatTopDescription(description);
+        };
+
+        const setDescriptionContent = (item) => {
+          stageTitle.textContent = item.title;
+          stageText.textContent = item.description;
+        };
+
+        const setPhotoAndTopContent = (item) => {
           photo.src = item.src;
           photo.alt = item.title;
-          title.textContent = item.title;
-          text.textContent = item.description;
-          showCaptionWithDelay();
+          setTopDescription(item.description);
+        };
+
+        const setDescriptionPhase = (instant = false) => {
+          root.classList.add("auto-description");
+          root.classList.remove("desc-on-top");
+          if (instant) {
+            root.classList.add("instant-hide");
+            window.requestAnimationFrame(() => {
+              window.requestAnimationFrame(() => {
+                root.classList.remove("instant-hide");
+              });
+            });
+          }
+        };
+
+        const setPhotoPhase = () => {
+          root.classList.remove("auto-description");
+          root.classList.add("desc-on-top");
         };
 
         const syncAutoToggle = () => {
-          const autoIsOn = autoTimer !== null;
-          if (autoToggle) autoToggle.checked = autoIsOn;
-          if (autoState) autoState.textContent = autoIsOn ? "On" : "Off";
+          if (autoToggle) autoToggle.checked = autoEnabled;
+          if (autoState) autoState.textContent = autoEnabled ? "On" : "Off";
+        };
+
+        const showDescriptionThenPhoto = (item, onPhotoVisible, options = {}) => {
+          clearPhaseTimer();
+          setDescriptionContent(item);
+          setDescriptionPhase(Boolean(options.instant));
+
+          phaseTimer = window.setTimeout(() => {
+            setPhotoAndTopContent(item);
+            setPhotoPhase();
+            if (typeof onPhotoVisible === "function") {
+              onPhotoVisible();
+            }
+          }, DESCRIPTION_PHASE_MS);
+        };
+
+        const scheduleAuto = (ms, step, token) => {
+          clearAutoTimer();
+          autoTimer = window.setTimeout(() => {
+            if (!autoEnabled || autoToken !== token) return;
+            step();
+          }, ms);
+        };
+
+        const runAutoCycle = () => {
+          if (!started || !autoEnabled) return;
+          const token = autoToken;
+          const item = items[index];
+
+          showDescriptionThenPhoto(item, () => {
+            if (!autoEnabled || autoToken !== token) return;
+            scheduleAuto(PHOTO_TRANSITION_MS + AUTO_PHOTO_MS, () => {
+              index = (index + 1) % items.length;
+              runAutoCycle();
+            }, token);
+          });
+        };
+
+        const stopAuto = (showPhotoPhase = true) => {
+          autoEnabled = false;
+          autoToken += 1;
+          clearAllTimers();
+          if (started && showPhotoPhase) setPhotoPhase();
+          syncAutoToggle();
         };
 
         const startAuto = () => {
-          if (!started || autoTimer !== null) return;
-          autoTimer = window.setInterval(() => {
-            render(index + 1);
-          }, AUTO_INTERVAL_MS);
+          if (!started || autoEnabled) return;
+          autoEnabled = true;
+          autoToken += 1;
+          clearAllTimers();
           syncAutoToggle();
+          runAutoCycle();
         };
 
-        const stopAuto = () => {
-          if (autoTimer !== null) {
-            window.clearInterval(autoTimer);
-            autoTimer = null;
+        const renderManual = (nextIndex) => {
+          stopAuto(false);
+          index = (nextIndex + items.length) % items.length;
+          showDescriptionThenPhoto(items[index]);
+        };
+
+        const goPrev = () => renderManual(index - 1);
+        const goNext = () => renderManual(index + 1);
+
+        const enterFullscreen = async () => {
+          if (document.fullscreenElement) return;
+          try {
+            await document.documentElement.requestFullscreen();
+          } catch (_error) {
+            // Ignore fullscreen rejection and continue.
           }
-          syncAutoToggle();
         };
-
-        const goPrev = () => render(index - 1);
-        const goNext = () => render(index + 1);
 
         prevBtn?.addEventListener("click", goPrev);
         nextBtn?.addEventListener("click", goNext);
+        fsBtn?.addEventListener("click", enterFullscreen);
         autoToggle?.addEventListener("change", () => {
           if (autoToggle.checked) {
             startAuto();
@@ -495,7 +665,8 @@ const initialItem = items[0] ?? null;
           if (started) return;
           started = true;
           root.classList.add("started");
-          render(0);
+          index = 0;
+          showDescriptionThenPhoto(items[index], undefined, { instant: true });
           intro?.classList.add("opening");
           window.setTimeout(() => {
             intro?.classList.add("hidden");
@@ -503,13 +674,7 @@ const initialItem = items[0] ?? null;
         };
 
         startBtn?.addEventListener("click", async () => {
-          if (!document.fullscreenElement) {
-            try {
-              await document.documentElement.requestFullscreen();
-            } catch (_error) {
-              // Continue even if fullscreen is denied.
-            }
-          }
+          await enterFullscreen();
           startExhibition();
         });
 
