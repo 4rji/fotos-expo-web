@@ -59,7 +59,7 @@ const initialItem = items[0] ?? null;
         --bg: #000;
         --text: #f8f8f8;
         --text-muted: rgba(248, 248, 248, 0.72);
-        --header-height: 92px;
+        --header-height: 84px;
       }
 
       * {
@@ -105,9 +105,9 @@ const initialItem = items[0] ?? null;
         z-index: 4;
         width: 100%;
         display: grid;
-        grid-template-columns: max-content minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr);
         align-items: center;
-        gap: 12px;
+        gap: 8px;
         height: var(--header-height);
         padding: 4px 8px 12px;
         background: linear-gradient(
@@ -118,28 +118,8 @@ const initialItem = items[0] ?? null;
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       }
 
-      .title {
-        margin: 0;
-        font-family: "Cormorant Garamond", Georgia, serif;
-        font-size: clamp(1.3rem, 2.5vw, 2.2rem);
-        font-weight: 500;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--text-muted);
-      }
-
       .top-description {
-        margin: 0;
-        font-size: clamp(0.75rem, 1.2vw, 0.95rem);
-        letter-spacing: 0.03em;
-        color: var(--text-muted);
-        white-space: normal;
-        line-height: 1.35;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
+        min-width: 0;
         opacity: 0;
         transform: translateY(-6px);
         transition: opacity 2.5s ease, transform 2.5s ease;
@@ -148,6 +128,30 @@ const initialItem = items[0] ?? null;
       .gallery.desc-on-top .top-description {
         opacity: 0.96;
         transform: translateY(0);
+      }
+
+      .top-main {
+        margin: 0;
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: clamp(1rem, 1.8vw, 1.35rem);
+        letter-spacing: 0.04em;
+        color: rgba(248, 248, 248, 0.92);
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .top-meta {
+        margin: 4px 0 0;
+        font-size: clamp(0.68rem, 1vw, 0.85rem);
+        letter-spacing: 0.025em;
+        line-height: 1.3;
+        color: var(--text-muted);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
 
       .frame {
@@ -218,21 +222,38 @@ const initialItem = items[0] ?? null;
         display: flex;
         gap: 8px;
         pointer-events: none;
+        opacity: 0.04;
+        transform: scale(0.6);
+        transform-origin: bottom right;
+        transition: opacity 0.35s ease, transform 0.35s ease;
       }
 
       .gallery.started .controls {
         pointer-events: auto;
       }
 
+      .gallery.started .controls:hover,
+      .gallery.started .controls:focus-within {
+        opacity: 0.96;
+      }
+
       .btn {
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        background: rgba(0, 0, 0, 0.45);
-        color: var(--text);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.015);
+        color: rgba(248, 248, 248, 0.18);
         padding: 10px 14px;
         cursor: pointer;
         font-size: 0.82rem;
         letter-spacing: 0.04em;
         text-transform: uppercase;
+        transition: color 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
+      }
+
+      .gallery.started .controls:hover .btn,
+      .gallery.started .controls:focus-within .btn {
+        border-color: rgba(255, 255, 255, 0.62);
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.96);
       }
 
       .mini-btn {
@@ -247,10 +268,16 @@ const initialItem = items[0] ?? null;
         gap: 8px;
         margin-left: 2px;
         padding: 0 2px;
-        color: var(--text-muted);
+        color: rgba(248, 248, 248, 0.2);
         font-size: 0.72rem;
         letter-spacing: 0.06em;
         text-transform: uppercase;
+        transition: color 0.25s ease;
+      }
+
+      .gallery.started .controls:hover .auto-mode,
+      .gallery.started .controls:focus-within .auto-mode {
+        color: rgba(255, 255, 255, 0.96);
       }
 
       .auto-switch {
@@ -270,9 +297,9 @@ const initialItem = items[0] ?? null;
       .auto-slider {
         position: absolute;
         inset: 0;
-        border: 1px solid rgba(255, 255, 255, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.14);
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.03);
         transition: background-color 0.25s ease, border-color 0.25s ease;
         cursor: pointer;
       }
@@ -285,8 +312,19 @@ const initialItem = items[0] ?? null;
         left: 2px;
         top: 2px;
         border-radius: 50%;
-        background: #fff;
+        background: rgba(255, 255, 255, 0.42);
         transition: transform 0.25s ease;
+      }
+
+      .gallery.started .controls:hover .auto-slider,
+      .gallery.started .controls:focus-within .auto-slider {
+        border-color: rgba(255, 255, 255, 0.62);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .gallery.started .controls:hover .auto-slider::before,
+      .gallery.started .controls:focus-within .auto-slider::before {
+        background: rgba(255, 255, 255, 0.96);
       }
 
       .auto-switch input:checked + .auto-slider {
@@ -374,8 +412,14 @@ const initialItem = items[0] ?? null;
       }
 
       .intro-note {
-        margin: 14px 0 0;
-        font-size: 0.8rem;
+        position: absolute;
+        left: 50%;
+        bottom: 18px;
+        transform: translateX(-50%);
+        margin: 0;
+        width: min(92vw, 760px);
+        text-align: center;
+        font-size: 0.6rem;
         color: var(--text-muted);
         letter-spacing: 0.03em;
       }
@@ -389,7 +433,7 @@ const initialItem = items[0] ?? null;
 
       @media (max-width: 700px) {
         :root {
-          --header-height: 122px;
+          --header-height: 104px;
         }
 
         .header-bar {
@@ -408,6 +452,12 @@ const initialItem = items[0] ?? null;
           max-height: calc(100vh - var(--header-height) - 52px);
         }
       }
+
+      @media (hover: none) {
+        .gallery.started .controls {
+          opacity: 0.18;
+        }
+      }
     </style>
   </head>
   <body>
@@ -417,8 +467,10 @@ const initialItem = items[0] ?? null;
       data-count={items.length}
     >
       <header class="header-bar">
-        <h1 class="title">Photo Gallery</h1>
-        <p id="top-description" class="top-description"></p>
+        <div id="top-description" class="top-description">
+          <p id="top-main" class="top-main"></p>
+          <p id="top-meta" class="top-meta"></p>
+        </div>
       </header>
 
       {
@@ -433,8 +485,10 @@ const initialItem = items[0] ?? null;
                 <button id="start-btn" class="btn start-btn" type="button">
                   Start Exhibition
                 </button>
-                <p class="intro-note">Launches in fullscreen if available.</p>
               </div>
+              <p class="intro-note">
+                Launches in fullscreen if available. Use Space/Backspace to navigate.
+              </p>
             </section>
             <figure class="frame">
               <img
@@ -487,6 +541,8 @@ const initialItem = items[0] ?? null;
 
         const photo = document.getElementById("photo");
         const topDescription = document.getElementById("top-description");
+        const topMain = document.getElementById("top-main");
+        const topMeta = document.getElementById("top-meta");
         const stageTitle = document.getElementById("stage-title");
         const stageText = document.getElementById("stage-text");
         const prevBtn = document.getElementById("prev-btn");
@@ -503,7 +559,7 @@ const initialItem = items[0] ?? null;
         let autoTimer = null;
         let autoEnabled = false;
         let autoToken = 0;
-        const DESCRIPTION_PHASE_MS = 3000;
+        const DESCRIPTION_PHASE_MS = 5000;
         const PHOTO_TRANSITION_MS = 2500;
         const AUTO_PHOTO_MS = 5000;
 
@@ -526,12 +582,32 @@ const initialItem = items[0] ?? null;
           clearAutoTimer();
         };
 
-        const formatTopDescription = (description) => {
-          const compact = description
+        const parseDescription = (description, fallbackTitle) => {
+          const lines = description
             .split(/\r?\n/)
             .map((line) => line.trim())
-            .filter(Boolean)
-            .join(" · ");
+            .filter(Boolean);
+
+          if (!lines.length) {
+            return { headline: fallbackTitle, details: [] };
+          }
+
+          let headline = lines[0];
+          let details = lines.slice(1);
+
+          if (/^description\b/i.test(headline) && details.length) {
+            headline = details[0];
+            details = details.slice(1);
+          }
+
+          return {
+            headline: headline || fallbackTitle,
+            details
+          };
+        };
+
+        const formatTopMeta = (details) => {
+          const compact = details.join(" · ");
           const maxChars = window.matchMedia("(max-width: 700px)").matches
             ? 130
             : 230;
@@ -540,20 +616,25 @@ const initialItem = items[0] ?? null;
             : compact;
         };
 
-        const setTopDescription = (description) => {
-          if (!topDescription) return;
-          topDescription.textContent = formatTopDescription(description);
+        const setTopDescription = (parsedDescription) => {
+          if (!topDescription || !topMain || !topMeta) return;
+          topMain.textContent = parsedDescription.headline;
+          const meta = formatTopMeta(parsedDescription.details);
+          topMeta.textContent = meta;
+          topMeta.style.display = meta ? "" : "none";
         };
 
-        const setDescriptionContent = (item) => {
-          stageTitle.textContent = item.title;
-          stageText.textContent = item.description;
+        const setDescriptionContent = (parsedDescription) => {
+          stageTitle.textContent = parsedDescription.headline;
+          stageText.textContent = parsedDescription.details.length
+            ? parsedDescription.details.join("\n")
+            : "";
         };
 
-        const setPhotoAndTopContent = (item) => {
+        const setPhotoAndTopContent = (item, parsedDescription) => {
           photo.src = item.src;
-          photo.alt = item.title;
-          setTopDescription(item.description);
+          photo.alt = parsedDescription.headline || item.title;
+          setTopDescription(parsedDescription);
         };
 
         const setDescriptionPhase = (instant = false) => {
@@ -581,11 +662,12 @@ const initialItem = items[0] ?? null;
 
         const showDescriptionThenPhoto = (item, onPhotoVisible, options = {}) => {
           clearPhaseTimer();
-          setDescriptionContent(item);
+          const parsedDescription = parseDescription(item.description, item.title);
+          setDescriptionContent(parsedDescription);
           setDescriptionPhase(Boolean(options.instant));
 
           phaseTimer = window.setTimeout(() => {
-            setPhotoAndTopContent(item);
+            setPhotoAndTopContent(item, parsedDescription);
             setPhotoPhase();
             if (typeof onPhotoVisible === "function") {
               onPhotoVisible();
@@ -685,6 +767,10 @@ const initialItem = items[0] ?? null;
           }
           if (event.key === "ArrowRight") goNext();
           if (event.key === "ArrowLeft") goPrev();
+          if (event.key === "Backspace") {
+            event.preventDefault();
+            goPrev();
+          }
           if (event.code === "Space") {
             event.preventDefault();
             goNext();

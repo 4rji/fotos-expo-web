@@ -7,10 +7,10 @@ Simple Astro gallery for photo exhibitions:
 - cinematic intro curtain with `Start Exhibition` button
 - description shown in the top bar next to the title (compact/adaptive format)
 - starts in fullscreen when available
-- `Space` key works as `Next`
+- `Space` key works as `Next`, and `Backspace` as `Previous`
 - auto slideshow with a small `Auto` On/Off toggle switch
 - `Next` / `Prev` / `Space` also use the description-to-photo transition
-- each slide shows description first for 3s, then transitions to photo in 1.5s
+- each slide shows description first for 5s, then transitions to photo in 2.5s
 - in `Auto`, the photo stays visible for 5s before moving to the next slide
 - small `Full` button to re-enter fullscreen if you exit accidentally
 
