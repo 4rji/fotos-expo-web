@@ -120,6 +120,9 @@ const initialItem = items[0] ?? null;
 
       .top-description {
         min-width: 0;
+        width: min(98vw, 1700px);
+        margin: 0 auto;
+        text-align: center;
         opacity: 0;
         transform: translateY(-6px);
         transition: opacity 2.5s ease, transform 2.5s ease;
@@ -134,19 +137,21 @@ const initialItem = items[0] ?? null;
         margin: 0;
         font-family: "Cormorant Garamond", Georgia, serif;
         font-size: clamp(1rem, 1.8vw, 1.35rem);
+        font-weight: 700;
         letter-spacing: 0.04em;
         color: rgba(248, 248, 248, 0.92);
-        line-height: 1.2;
-        white-space: nowrap;
+        line-height: 1.22;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
         overflow: hidden;
-        text-overflow: ellipsis;
       }
 
       .top-meta {
         margin: 4px 0 0;
-        font-size: clamp(0.68rem, 1vw, 0.85rem);
-        letter-spacing: 0.025em;
-        line-height: 1.3;
+        font-size: clamp(0.7rem, 1.05vw, 0.9rem);
+        letter-spacing: 0.03em;
+        line-height: 1.45;
         color: var(--text-muted);
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -600,17 +605,30 @@ const initialItem = items[0] ?? null;
             details = details.slice(1);
           }
 
+          let note = "";
+          const metaDetails = [];
+          for (const detail of details) {
+            if (!note && /^notes?\s*:/i.test(detail)) {
+              note = detail;
+            } else {
+              metaDetails.push(detail);
+            }
+          }
+
           return {
             headline: headline || fallbackTitle,
-            details
+            details,
+            note,
+            metaDetails
           };
         };
 
         const formatTopMeta = (details) => {
-          const compact = details.join(" · ");
+          const separator = "\u00A0\u00A0\u00A0\u2022\u00A0\u00A0\u00A0";
+          const compact = details.filter(Boolean).join(separator);
           const maxChars = window.matchMedia("(max-width: 700px)").matches
-            ? 130
-            : 230;
+            ? 190
+            : 520;
           return compact.length > maxChars
             ? `${compact.slice(0, maxChars).trimEnd()}...`
             : compact;
@@ -619,7 +637,10 @@ const initialItem = items[0] ?? null;
         const setTopDescription = (parsedDescription) => {
           if (!topDescription || !topMain || !topMeta) return;
           topMain.textContent = parsedDescription.headline;
-          const meta = formatTopMeta(parsedDescription.details);
+          const meta = formatTopMeta([
+            ...parsedDescription.metaDetails,
+            parsedDescription.note
+          ]);
           topMeta.textContent = meta;
           topMeta.style.display = meta ? "" : "none";
         };
