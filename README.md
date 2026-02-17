@@ -8,7 +8,7 @@ Simple Astro gallery for photo exhibitions:
 - description appears 5 seconds after each photo is shown
 - starts in fullscreen when available
 - `Space` key works as `Next`
-- auto slideshow every 10 seconds with `Auto On` and `Auto Off`
+- auto slideshow every 10 seconds with a small `Auto` On/Off toggle switch
 
 ## Local usage
 
