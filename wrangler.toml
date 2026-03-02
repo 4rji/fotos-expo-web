@@ -1,0 +1,7 @@
+name = "fotos-expo-web"
+main = "./dist/_worker.js/index.js"
+compatibility_date = "2026-03-02"
+
+[assets]
+directory = "./dist/client"
+binding = "ASSETS"

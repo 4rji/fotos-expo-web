@@ -34,8 +34,14 @@ photo-02.txt
 
 The `.txt` file content is linked to each image by filename and shown in the gallery UI.
 
-## Cloudflare Pages
+## Cloudflare Worker
 
-- Framework preset: `Astro`
-- Build command: `npm run build`
-- Build output directory: `dist`
+```bash
+npm install
+npm run deploy
+```
+
+This project is configured with:
+- Astro adapter: `@astrojs/cloudflare`
+- `wrangler.toml` for Worker runtime + static assets
+- deploy script: `wrangler deploy`
