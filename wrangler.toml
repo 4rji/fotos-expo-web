@@ -3,6 +3,10 @@ main = "./dist/_worker.js/index.js"
 compatibility_date = "2026-03-02"
 compatibility_flags = ["nodejs_compat"]
 
+[[routes]]
+pattern = "arts.4rji.com"
+custom_domain = true
+
 [assets]
 directory = "./dist"
 binding = "ASSETS"
