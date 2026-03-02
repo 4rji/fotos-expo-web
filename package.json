@@ -7,7 +7,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "deploy": "npm run build && wrangler deploy"
+    "deploy": "npm run build && wrangler deploy --config ./wrangler.toml --x-autoconfig=false"
   },
   "dependencies": {
     "astro": "^5.2.0",
