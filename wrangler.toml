@@ -1,7 +1,8 @@
 name = "fotos-expo-web"
 main = "./dist/_worker.js/index.js"
 compatibility_date = "2026-03-02"
+compatibility_flags = ["nodejs_compat"]
 
 [assets]
-directory = "./dist/client"
+directory = "./dist"
 binding = "ASSETS"
