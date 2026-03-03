@@ -566,9 +566,11 @@ const initialItem = items[0] ?? null;
         let index = 0;
         let started = false;
         let phaseTimer = null;
+        let swapTimer = null;
         let autoTimer = null;
         let autoEnabled = false;
         let autoToken = 0;
+        let transitionToken = 0;
         const DESCRIPTION_PHASE_MS = 5000;
         const PHOTO_TRANSITION_MS = 2500;
         const AUTO_PHOTO_MS = 5000;
@@ -577,6 +579,13 @@ const initialItem = items[0] ?? null;
           if (phaseTimer !== null) {
             window.clearTimeout(phaseTimer);
             phaseTimer = null;
+          }
+        };
+
+        const clearSwapTimer = () => {
+          if (swapTimer !== null) {
+            window.clearTimeout(swapTimer);
+            swapTimer = null;
           }
         };
 
@@ -589,6 +598,7 @@ const initialItem = items[0] ?? null;
 
         const clearAllTimers = () => {
           clearPhaseTimer();
+          clearSwapTimer();
           clearAutoTimer();
         };
 
@@ -686,18 +696,46 @@ const initialItem = items[0] ?? null;
           if (autoState) autoState.textContent = autoEnabled ? "On" : "Off";
         };
 
+        const preloadImage = (src) =>
+          new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+            img.src = src;
+          });
+
         const showDescriptionThenPhoto = (item, onPhotoVisible, options = {}) => {
           clearPhaseTimer();
+          clearSwapTimer();
+          const token = ++transitionToken;
           const parsedDescription = parseDescription(item.description, item.title);
           setDescriptionContent(parsedDescription);
           setDescriptionPhase(Boolean(options.instant));
+          const imageReady = preloadImage(item.src);
+          const applyNextPhoto = () => {
+            if (transitionToken !== token) return;
+            setPhotoAndTopContent(item, parsedDescription);
+          };
+
+          const swapDelay = options.instant ? 0 : PHOTO_TRANSITION_MS;
+          swapTimer = window.setTimeout(() => {
+            if (transitionToken !== token) return;
+            imageReady.then(() => {
+              if (transitionToken !== token) return;
+              applyNextPhoto();
+            });
+          }, swapDelay);
 
           phaseTimer = window.setTimeout(() => {
-            setPhotoAndTopContent(item, parsedDescription);
-            setPhotoPhase();
-            if (typeof onPhotoVisible === "function") {
-              onPhotoVisible();
-            }
+            if (transitionToken !== token) return;
+            imageReady.then(() => {
+              if (transitionToken !== token) return;
+              applyNextPhoto();
+              setPhotoPhase();
+              if (typeof onPhotoVisible === "function") {
+                onPhotoVisible();
+              }
+            });
           }, DESCRIPTION_PHASE_MS);
         };
 
