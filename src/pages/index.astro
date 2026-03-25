@@ -4,7 +4,6 @@ export const prerender = true;
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-const galleryDir = path.resolve("public/gallery");
 const imageExtensions = new Set([
   ".jpg",
   ".jpeg",
@@ -15,16 +14,17 @@ const imageExtensions = new Set([
   ".svg"
 ]);
 
-let items = [];
+const loadGallery = (folder) => {
+  const galleryDir = path.resolve("public", folder);
+  if (!existsSync(galleryDir)) return [];
 
-if (existsSync(galleryDir)) {
   const files = readdirSync(galleryDir).sort();
   const imageFiles = files.filter((file) => {
     const ext = path.extname(file).toLowerCase();
     return imageExtensions.has(ext);
   });
 
-  items = imageFiles.map((file, index) => {
+  return imageFiles.map((file, index) => {
     const base = file.slice(0, -path.extname(file).length);
     const descriptionPath = path.join(galleryDir, `${base}.txt`);
     const fallback = `Description ${String(index + 1).padStart(2, "0")}: Add your photo details here.`;
@@ -35,13 +35,27 @@ if (existsSync(galleryDir)) {
 
     return {
       title: `Photo ${String(index + 1).padStart(2, "0")}`,
-      src: `/gallery/${file}`,
+      src: `/${folder}/${file}`,
       description
     };
   });
-}
+};
 
-const initialItem = items[0] ?? null;
+const assignments = {
+  "assignment-1": {
+    title: "Assignment 1",
+    folder: "assignment-1-gallery",
+    items: loadGallery("assignment-1-gallery")
+  },
+  "assignment-2": {
+    title: "Assignment 2",
+    folder: "assignment-2-gallery",
+    items: loadGallery("assignment-2-gallery")
+  }
+};
+
+const initialAssignment = assignments["assignment-1"];
+const initialItem = initialAssignment.items[0] ?? null;
 ---
 
 <!doctype html>
@@ -391,6 +405,7 @@ const initialItem = items[0] ?? null;
         text-align: center;
         padding: 24px;
         transition: opacity 0.35s ease;
+        width: min(92vw, 840px);
       }
 
       .intro.opening .intro-content {
@@ -411,6 +426,44 @@ const initialItem = items[0] ?? null;
         font-size: clamp(2rem, 5vw, 4.2rem);
         font-weight: 500;
         letter-spacing: 0.06em;
+      }
+
+      .assignment-tabs {
+        display: inline-flex;
+        gap: 10px;
+        margin: 0 0 22px;
+        padding: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .assignment-tab {
+        min-width: 168px;
+        border-color: transparent;
+        background: transparent;
+        color: rgba(248, 248, 248, 0.58);
+      }
+
+      .assignment-tab.active {
+        border-color: rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.96);
+      }
+
+      .assignment-panel {
+        display: none;
+      }
+
+      .assignment-panel.active {
+        display: block;
+      }
+
+      .assignment-copy {
+        margin: 0 0 18px;
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        letter-spacing: 0.04em;
+        line-height: 1.7;
       }
 
       .start-btn {
@@ -459,6 +512,15 @@ const initialItem = items[0] ?? null;
         .photo {
           max-height: calc(100vh - var(--header-height) - 52px);
         }
+
+        .assignment-tabs {
+          width: 100%;
+          flex-direction: column;
+        }
+
+        .assignment-tab {
+          width: 100%;
+        }
       }
 
       @media (hover: none) {
@@ -471,8 +533,8 @@ const initialItem = items[0] ?? null;
   <body>
     <main
       class="gallery"
-      data-items={JSON.stringify(items)}
-      data-count={items.length}
+      data-assignments={JSON.stringify(assignments)}
+      data-count={initialAssignment.items.length}
     >
       <header class="header-bar">
         <div id="top-description" class="top-description">
@@ -490,14 +552,75 @@ const initialItem = items[0] ?? null;
               <div class="intro-content">
                 <p class="intro-kicker">Photo Exhibition</p>
                 <h2 class="intro-title">Gallery</h2>
-                <button id="start-btn" class="btn start-btn" type="button">
-                  Start Exhibition
-                </button>
+                <div
+                  class="assignment-tabs"
+                  role="tablist"
+                  aria-label="Assignment selector"
+                >
+                  <button
+                    id="tab-assignment-1"
+                    class="btn assignment-tab active"
+                    type="button"
+                    role="tab"
+                    aria-selected="true"
+                    aria-controls="panel-assignment-1"
+                    data-assignment="assignment-1"
+                  >
+                    Assignment 1
+                  </button>
+                  <button
+                    id="tab-assignment-2"
+                    class="btn assignment-tab"
+                    type="button"
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="panel-assignment-2"
+                    data-assignment="assignment-2"
+                  >
+                    Assignment 2
+                  </button>
+                </div>
+                <section
+                  id="panel-assignment-1"
+                  class="assignment-panel active"
+                  role="tabpanel"
+                  aria-labelledby="tab-assignment-1"
+                  data-panel="assignment-1"
+                >
+                  <p class="assignment-copy">
+                    This tab contains the current gallery project exactly as it is now.
+                  </p>
+                  <button
+                    class="btn start-btn"
+                    type="button"
+                    data-start-assignment="assignment-1"
+                  >
+                    Start Assignment 1
+                  </button>
+                </section>
+                <section
+                  id="panel-assignment-2"
+                  class="assignment-panel"
+                  role="tabpanel"
+                  aria-labelledby="tab-assignment-2"
+                  data-panel="assignment-2"
+                >
+                  <p class="assignment-copy">
+                    Assignment 2 starts with the same gallery, photos, and behavior for later edits.
+                  </p>
+                  <button
+                    class="btn start-btn"
+                    type="button"
+                    data-start-assignment="assignment-2"
+                  >
+                    Start Assignment 2
+                  </button>
+                </section>
               </div>
               <p class="intro-note">
                 Launches in fullscreen if available.
                 <br />
-                Use Space/Backspace for next.
+                Use Space or ArrowDown for next. Use Backspace or ArrowUp for previous.
               </p>
             </section>
             <figure class="frame">
@@ -514,6 +637,7 @@ const initialItem = items[0] ?? null;
             </section>
             <div class="controls">
               <button id="fs-btn" class="btn mini-btn" type="button">Full</button>
+              <button id="home-btn" class="btn mini-btn" type="button">Home</button>
               <button id="prev-btn" class="btn" type="button">Prev</button>
               <button id="next-btn" class="btn" type="button">Next</button>
               <div class="auto-mode">
@@ -532,7 +656,7 @@ const initialItem = items[0] ?? null;
           </>
         ) : (
           <p class="empty">
-            Add your files in <code>public/gallery</code>:
+            Add your files in <code>public/assignment-1-gallery</code> or <code>public/assignment-2-gallery</code>:
             <br />
             <code>photo-01.jpg</code> + <code>photo-01.txt</code>
           </p>
@@ -545,9 +669,14 @@ const initialItem = items[0] ?? null;
         const root = document.querySelector(".gallery");
         if (!root) return;
 
-        const rawItems = root.dataset.items || "[]";
-        const items = JSON.parse(rawItems);
-        if (!Array.isArray(items) || !items.length) return;
+        const rawAssignments = root.dataset.assignments || "{}";
+        const assignments = JSON.parse(rawAssignments);
+        const getItemsForAssignment = (assignmentId) =>
+          Array.isArray(assignments?.[assignmentId]?.items)
+            ? assignments[assignmentId].items
+            : [];
+        let items = getItemsForAssignment("assignment-1");
+        if (!items.length) return;
 
         const photo = document.getElementById("photo");
         const topDescription = document.getElementById("top-description");
@@ -558,13 +687,23 @@ const initialItem = items[0] ?? null;
         const prevBtn = document.getElementById("prev-btn");
         const nextBtn = document.getElementById("next-btn");
         const fsBtn = document.getElementById("fs-btn");
+        const homeBtn = document.getElementById("home-btn");
         const autoToggle = document.getElementById("auto-toggle");
         const autoState = document.getElementById("auto-state");
         const intro = document.getElementById("intro");
-        const startBtn = document.getElementById("start-btn");
+        const assignmentTabs = Array.from(
+          document.querySelectorAll("[data-assignment]")
+        );
+        const assignmentPanels = Array.from(
+          document.querySelectorAll("[data-panel]")
+        );
+        const startButtons = Array.from(
+          document.querySelectorAll("[data-start-assignment]")
+        );
 
         let index = 0;
         let started = false;
+        let activeAssignment = "assignment-1";
         let phaseTimer = null;
         let swapTimer = null;
         let autoTimer = null;
@@ -787,6 +926,21 @@ const initialItem = items[0] ?? null;
         const goPrev = () => renderManual(index - 1);
         const goNext = () => renderManual(index + 1);
 
+        const setActiveAssignment = (assignmentId) => {
+          const nextItems = getItemsForAssignment(assignmentId);
+          if (!nextItems.length) return;
+          activeAssignment = assignmentId;
+          items = nextItems;
+          assignmentTabs.forEach((tab) => {
+            const isActive = tab.dataset.assignment === assignmentId;
+            tab.classList.toggle("active", isActive);
+            tab.setAttribute("aria-selected", isActive ? "true" : "false");
+          });
+          assignmentPanels.forEach((panel) => {
+            panel.classList.toggle("active", panel.dataset.panel === assignmentId);
+          });
+        };
+
         const enterFullscreen = async () => {
           if (document.fullscreenElement) return;
           try {
@@ -796,9 +950,23 @@ const initialItem = items[0] ?? null;
           }
         };
 
+        const returnHome = () => {
+          if (!started) return;
+          stopAuto(false);
+          clearAllTimers();
+          transitionToken += 1;
+          started = false;
+          index = 0;
+          root.classList.remove("started", "auto-description", "desc-on-top");
+          delete root.dataset.activeAssignment;
+          intro?.classList.remove("opening", "hidden");
+          setActiveAssignment(activeAssignment);
+        };
+
         prevBtn?.addEventListener("click", goPrev);
         nextBtn?.addEventListener("click", goNext);
         fsBtn?.addEventListener("click", enterFullscreen);
+        homeBtn?.addEventListener("click", returnHome);
         autoToggle?.addEventListener("change", () => {
           if (autoToggle.checked) {
             startAuto();
@@ -807,10 +975,19 @@ const initialItem = items[0] ?? null;
           }
         });
 
-        const startExhibition = () => {
+        assignmentTabs.forEach((tab) => {
+          tab.addEventListener("click", () => {
+            if (started) return;
+            setActiveAssignment(tab.dataset.assignment || "assignment-1");
+          });
+        });
+
+        const startExhibition = (assignmentId) => {
           if (started) return;
+          setActiveAssignment(assignmentId);
           started = true;
           root.classList.add("started");
+          root.dataset.activeAssignment = assignmentId;
           index = 0;
           showDescriptionThenPhoto(items[index], undefined, { instant: true });
           intro?.classList.add("opening");
@@ -819,18 +996,40 @@ const initialItem = items[0] ?? null;
           }, 1200);
         };
 
-        startBtn?.addEventListener("click", async () => {
-          await enterFullscreen();
-          startExhibition();
+        startButtons.forEach((button) => {
+          button.addEventListener("click", async () => {
+            await enterFullscreen();
+            startExhibition(button.dataset.startAssignment || activeAssignment);
+          });
         });
 
         document.addEventListener("keydown", (event) => {
           if (!started) {
-            if (event.key === "Enter") startBtn?.click();
+            if (
+              event.key === "ArrowRight" ||
+              event.key === "ArrowDown"
+            ) {
+              event.preventDefault();
+              setActiveAssignment("assignment-2");
+            }
+            if (
+              event.key === "ArrowLeft" ||
+              event.key === "ArrowUp"
+            ) {
+              event.preventDefault();
+              setActiveAssignment("assignment-1");
+            }
+            if (event.key === "Enter") {
+              event.preventDefault();
+              const activeButton = document.querySelector(
+                `[data-start-assignment="${activeAssignment}"]`
+              );
+              activeButton?.click();
+            }
             return;
           }
-          if (event.key === "ArrowRight") goNext();
-          if (event.key === "ArrowLeft") goPrev();
+          if (event.key === "ArrowRight" || event.key === "ArrowDown") goNext();
+          if (event.key === "ArrowLeft" || event.key === "ArrowUp") goPrev();
           if (event.key === "Backspace") {
             event.preventDefault();
             goPrev();
@@ -841,6 +1040,7 @@ const initialItem = items[0] ?? null;
           }
         });
 
+        setActiveAssignment(activeAssignment);
         syncAutoToggle();
       })();
     </script>

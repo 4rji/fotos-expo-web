@@ -4,10 +4,12 @@ Simple Astro gallery for photo exhibitions:
 - black background
 - centered image
 - white elegant typography
-- cinematic intro curtain with `Start Exhibition` button
+- cinematic intro curtain with `Assignment 1` / `Assignment 2` tabs
+- `Start Assignment 1` reads files from `public/assignment-1-gallery`
+- `Start Assignment 2` reads files from `public/assignment-2-gallery`
 - description shown in the top bar next to the title (compact/adaptive format)
 - starts in fullscreen when available
-- `Space` key works as `Next`, and `Backspace` as `Previous`
+- `Space` or `ArrowDown` works as `Next`, and `Backspace` or `ArrowUp` as `Previous`
 - auto slideshow with a small `Auto` On/Off toggle switch
 - `Next` / `Prev` / `Space` also use the description-to-photo transition
 - each slide shows description first for 5s, then transitions to photo in 2.5s
@@ -23,7 +25,7 @@ npm run dev
 
 ## Add your photos and descriptions
 
-Put files in `public/gallery` with matching names:
+Put files in `public/assignment-1-gallery` or `public/assignment-2-gallery` with matching names:
 
 ```text
 photo-01.jpg
