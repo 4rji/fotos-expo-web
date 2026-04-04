@@ -1,5 +1,9 @@
 # Fotos Expo Web
 
+This project creates a web page to present photos in a clean, immersive gallery format. The screenshot below shows the website's landing view, with a dark cinematic layout, the main gallery title, assignment selection tabs, and a button to start the photo presentation.
+
+![Screenshot of the Fotos Expo Web homepage showing the gallery title, assignment tabs, and start button](./website.webp)
+
 Simple Astro gallery for photo exhibitions:
 - black background
 - centered image
