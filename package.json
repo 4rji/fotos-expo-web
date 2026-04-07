@@ -4,15 +4,17 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "node scripts/generate-gallery-manifest.mjs",
     "dev": "astro dev",
+    "prebuild": "node scripts/generate-gallery-manifest.mjs",
     "build": "astro build",
     "postbuild": "node -e \"require('node:fs').writeFileSync('dist/.assetsignore', '_worker.js\\n')\"",
     "preview": "astro preview",
     "deploy": "npm run build && wrangler deploy --config ./wrangler.toml --x-autoconfig=false"
   },
   "dependencies": {
-    "astro": "^5.2.0",
-    "@astrojs/cloudflare": "^12.6.7"
+    "@astrojs/cloudflare": "^13.1.7",
+    "astro": "^6.1.4"
   },
   "devDependencies": {
     "wrangler": "^4.53.1"

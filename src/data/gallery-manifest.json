@@ -1,0 +1,130 @@
+{
+  "assignment-1": {
+    "title": "Assignment 1",
+    "folder": "assignment-1-gallery",
+    "items": [
+      {
+        "title": "Photo 01",
+        "src": "/assignment-1-gallery/photo-01.webp",
+        "description": "Sea Turtle in Motion \nLocation: Michin Aquarium, Mexico City, MX\nSettings: 1/160, f/4, ISO 3200."
+      },
+      {
+        "title": "Photo 02",
+        "src": "/assignment-1-gallery/photo-02.webp",
+        "description": "Frozen Mid-Swim\nLocation: Michin Aquarium, Mexico City, MX\nSettings: 1/60s, f/5.0, ISO 3200."
+      },
+      {
+        "title": "Photo 03",
+        "src": "/assignment-1-gallery/photo-03.webp",
+        "description": "Bus Light Trail\nLocation: Paseo de la Reforma, CDMX, MX\nSettings: 1/25s, f/22, ISO 200 – 18mm (Sony NEX-5R)"
+      },
+      {
+        "title": "Photo 04",
+        "src": "/assignment-1-gallery/photo-04.webp",
+        "description": "Urban Light Patterns\nLocation: Paseo de la Reforma, CDMX, MX\nSettings: 1/25s, f/22, ISO 200 – 18mm (Sony NEX-5R)"
+      },
+      {
+        "title": "Photo 05",
+        "src": "/assignment-1-gallery/photo-05.webp",
+        "description": "Frog in Focus\nLocation: Michin Aquarium, Mexico City, MX\nSettings: 1/40s, f/4.0, ISO 3200 – 31mm (Sony NEX-5R)"
+      },
+      {
+        "title": "Photo 06",
+        "src": "/assignment-1-gallery/photo-06.webp",
+        "description": "Isolated in the Reef\nLocation: Michin Aquarium, Mexico City, MX\nSettings: 1/160s, f/4.0, ISO 2500 – 18mm (Sony NEX-5R)"
+      },
+      {
+        "title": "Photo 07",
+        "src": "/assignment-1-gallery/photo-07.webp",
+        "description": "Depth in the Reef\nLocation: Michin Aquarium, Mexico City, MX\nSettings: 1/60s, f/4.0, ISO 640 – 18mm (Sony NEX-5R)"
+      },
+      {
+        "title": "Photo 08",
+        "src": "/assignment-1-gallery/photo-08.webp",
+        "description": "Deep Depth of Field – Ancient Wall\nLocation: National Museum of Anthropology, Chapultepec, CDMX, MX\nSettings: 1/100s, f/4.0, ISO 3200 – 21mm (Sony NEX-5R)"
+      },
+      {
+        "title": "Photo 09",
+        "src": "/assignment-1-gallery/photo-09.webp",
+        "description": "Framed by Nature\nLocation: National Museum of Anthropology, Chapultepec, CDMX, MX\nSettings: 1/160s, f/4.0, ISO 200"
+      },
+      {
+        "title": "Photo 10",
+        "src": "/assignment-1-gallery/photo-10.webp",
+        "description": "Perched in Color\nLocation: Michin Aquarium, Mexico City, MX\nSettings: 1/160s, f/4.0, ISO 500 – 18mm (Sony NEX-5R)"
+      }
+    ]
+  },
+  "assignment-2": {
+    "title": "Assignment 2",
+    "folder": "assignment-2-gallery",
+    "items": [
+      {
+        "title": "Photo 01",
+        "src": "/assignment-2-gallery/photo-01.jpg",
+        "description": "Morning Coffee\nThe day usually starts early and quietly with a cup of coffee.\nSettings: 1/60, f/4, ISO 1000 - NEX-5R"
+      },
+      {
+        "title": "Photo 02",
+        "src": "/assignment-2-gallery/photo-02.jpeg",
+        "description": "Grocery Store\nGathering supplies for the day.\nSettings: 1/70s, f/2, ISO 100"
+      },
+      {
+        "title": "Photo 03",
+        "src": "/assignment-2-gallery/photo-03.jpg",
+        "description": "Fresh start\nA simple breakfast is how I start my mornings.\nSettings: 1/125s, f/3.5, ISO 3200 – 18mm (Sony NEX-5R)"
+      },
+      {
+        "title": "Photo 04",
+        "src": "/assignment-2-gallery/photo-04.jpg",
+        "description": "Boxing Bag\nStress relief\nSettings: 1/160s, f/4, ISO 2000 – 18mm (Sony NEX-5R)"
+      },
+      {
+        "title": "Photo 05",
+        "src": "/assignment-2-gallery/photo-05.jpg",
+        "description": "Afternoon Recharge\nFuel for the next phase\nSettings: 1/160s, f/4.0, ISO 640 – (Sony NEX-5R)"
+      },
+      {
+        "title": "Photo 06",
+        "src": "/assignment-2-gallery/photo-06.jpg",
+        "description": "Deep Work\nThis is where I build my future\nSettings: 1/16s, f/4.0, ISO 2500 –  (Sony NEX-5R)"
+      },
+      {
+        "title": "Photo 07",
+        "src": "/assignment-2-gallery/photo-07.jpg",
+        "description": "Night Reading\nWinding down\nSettings: 1/5s, f/4.0, ISO 3200 – (Sony NEX-5R)"
+      }
+    ]
+  },
+  "portrait": {
+    "title": "Portraits",
+    "folder": "portrait-gallery",
+    "items": [
+      {
+        "title": "Photo 01",
+        "src": "/portrait-gallery/photo-01.webp",
+        "description": "Sea Turtle in Motion \nLocation: Michin Aquarium, Mexico City, MX\nSettings: 1/160, f/4, ISO 3200."
+      },
+      {
+        "title": "Photo 02",
+        "src": "/portrait-gallery/photo-02.webp",
+        "description": "Frozen Mid-Swim\nLocation: Michin Aquarium, Mexico City, MX\nSettings: 1/60s, f/5.0, ISO 3200."
+      },
+      {
+        "title": "Photo 03",
+        "src": "/portrait-gallery/photo-03.webp",
+        "description": "Bus Light Trail\nLocation: Paseo de la Reforma, CDMX, MX\nSettings: 1/25s, f/22, ISO 200 – 18mm (Sony NEX-5R)"
+      },
+      {
+        "title": "Photo 04",
+        "src": "/portrait-gallery/photo-04.webp",
+        "description": "Urban Light Patterns\nLocation: Paseo de la Reforma, CDMX, MX\nSettings: 1/25s, f/22, ISO 200 – 18mm (Sony NEX-5R)"
+      },
+      {
+        "title": "Photo 05",
+        "src": "/portrait-gallery/photo-05.webp",
+        "description": "Frog in Focus\nLocation: Michin Aquarium, Mexico City, MX\nSettings: 1/40s, f/4.0, ISO 3200 – 31mm (Sony NEX-5R)"
+      }
+    ]
+  }
+}

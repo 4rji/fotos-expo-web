@@ -1,5 +1,5 @@
 name = "arts115"
-main = "./dist/_worker.js/index.js"
+main = "@astrojs/cloudflare/entrypoints/server"
 compatibility_date = "2026-03-02"
 compatibility_flags = ["nodejs_compat"]
 

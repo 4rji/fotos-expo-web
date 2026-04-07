@@ -1,58 +1,7 @@
 ---
 export const prerender = true;
 
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import path from "node:path";
-
-const imageExtensions = new Set([
-  ".jpg",
-  ".jpeg",
-  ".png",
-  ".webp",
-  ".avif",
-  ".gif",
-  ".svg"
-]);
-
-const loadGallery = (folder) => {
-  const galleryDir = path.resolve("public", folder);
-  if (!existsSync(galleryDir)) return [];
-
-  const files = readdirSync(galleryDir).sort();
-  const imageFiles = files.filter((file) => {
-    const ext = path.extname(file).toLowerCase();
-    return imageExtensions.has(ext);
-  });
-
-  return imageFiles.map((file, index) => {
-    const base = file.slice(0, -path.extname(file).length);
-    const descriptionPath = path.join(galleryDir, `${base}.txt`);
-    const fallback = `Description ${String(index + 1).padStart(2, "0")}: Add your photo details here.`;
-
-    const description = existsSync(descriptionPath)
-      ? readFileSync(descriptionPath, "utf8").trim() || fallback
-      : fallback;
-
-    return {
-      title: `Photo ${String(index + 1).padStart(2, "0")}`,
-      src: `/${folder}/${file}`,
-      description
-    };
-  });
-};
-
-const assignments = {
-  "assignment-1": {
-    title: "Assignment 1",
-    folder: "assignment-1-gallery",
-    items: loadGallery("assignment-1-gallery")
-  },
-  "assignment-2": {
-    title: "Assignment 2",
-    folder: "assignment-2-gallery",
-    items: loadGallery("assignment-2-gallery")
-  }
-};
+import assignments from "../data/gallery-manifest.json";
 
 const initialAssignment = assignments["assignment-1"];
 const initialItem = initialAssignment.items[0] ?? null;
@@ -534,6 +483,7 @@ const initialItem = initialAssignment.items[0] ?? null;
     <main
       class="gallery"
       data-assignments={JSON.stringify(assignments)}
+      data-initial-assignment="assignment-1"
       data-count={initialAssignment.items.length}
     >
       <header class="header-bar">
@@ -579,6 +529,17 @@ const initialItem = initialAssignment.items[0] ?? null;
                   >
                     Assignment 2
                   </button>
+                  <button
+                    id="tab-portrait"
+                    class="btn assignment-tab"
+                    type="button"
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="panel-portrait"
+                    data-assignment="portrait"
+                  >
+                    Portraits
+                  </button>
                 </div>
                 <section
                   id="panel-assignment-1"
@@ -614,6 +575,24 @@ const initialItem = initialAssignment.items[0] ?? null;
                     data-start-assignment="assignment-2"
                   >
                     Start Assignment 2
+                  </button>
+                </section>
+                <section
+                  id="panel-portrait"
+                  class="assignment-panel"
+                  role="tabpanel"
+                  aria-labelledby="tab-portrait"
+                  data-panel="portrait"
+                >
+                  <p class="assignment-copy">
+                    Portraits starts from Assignment 1 as a base and includes 5 photos for your portrait series.
+                  </p>
+                  <button
+                    class="btn start-btn"
+                    type="button"
+                    data-start-assignment="portrait"
+                  >
+                    Start Portraits
                   </button>
                 </section>
               </div>
@@ -656,7 +635,7 @@ const initialItem = initialAssignment.items[0] ?? null;
           </>
         ) : (
           <p class="empty">
-            Add your files in <code>public/assignment-1-gallery</code> or <code>public/assignment-2-gallery</code>:
+            Add your files in <code>public/assignment-1-gallery</code>, <code>public/assignment-2-gallery</code>, or <code>public/portrait-gallery</code>:
             <br />
             <code>photo-01.jpg</code> + <code>photo-01.txt</code>
           </p>
@@ -671,11 +650,19 @@ const initialItem = initialAssignment.items[0] ?? null;
 
         const rawAssignments = root.dataset.assignments || "{}";
         const assignments = JSON.parse(rawAssignments);
+        const fallbackAssignmentId = root.dataset.initialAssignment || "assignment-1";
+        const requestedAssignmentId = new URL(window.location.href).searchParams.get(
+          "assignment"
+        );
         const getItemsForAssignment = (assignmentId) =>
           Array.isArray(assignments?.[assignmentId]?.items)
             ? assignments[assignmentId].items
             : [];
-        let items = getItemsForAssignment("assignment-1");
+        const initialAssignmentId =
+          requestedAssignmentId && getItemsForAssignment(requestedAssignmentId).length
+            ? requestedAssignmentId
+            : fallbackAssignmentId;
+        let items = getItemsForAssignment(initialAssignmentId);
         if (!items.length) return;
 
         const photo = document.getElementById("photo");
@@ -700,10 +687,13 @@ const initialItem = initialAssignment.items[0] ?? null;
         const startButtons = Array.from(
           document.querySelectorAll("[data-start-assignment]")
         );
+        const assignmentOrder = assignmentTabs
+          .map((tab) => tab.dataset.assignment)
+          .filter(Boolean);
 
         let index = 0;
         let started = false;
-        let activeAssignment = "assignment-1";
+        let activeAssignment = initialAssignmentId;
         let phaseTimer = null;
         let swapTimer = null;
         let autoTimer = null;
@@ -941,6 +931,15 @@ const initialItem = initialAssignment.items[0] ?? null;
           });
         };
 
+        const shiftAssignment = (direction) => {
+          if (!assignmentOrder.length) return;
+          const currentIndex = assignmentOrder.indexOf(activeAssignment);
+          const safeIndex = currentIndex === -1 ? 0 : currentIndex;
+          const nextIndex =
+            (safeIndex + direction + assignmentOrder.length) % assignmentOrder.length;
+          setActiveAssignment(assignmentOrder[nextIndex]);
+        };
+
         const enterFullscreen = async () => {
           if (document.fullscreenElement) return;
           try {
@@ -978,7 +977,7 @@ const initialItem = initialAssignment.items[0] ?? null;
         assignmentTabs.forEach((tab) => {
           tab.addEventListener("click", () => {
             if (started) return;
-            setActiveAssignment(tab.dataset.assignment || "assignment-1");
+            setActiveAssignment(tab.dataset.assignment || fallbackAssignmentId);
           });
         });
 
@@ -1010,14 +1009,14 @@ const initialItem = initialAssignment.items[0] ?? null;
               event.key === "ArrowDown"
             ) {
               event.preventDefault();
-              setActiveAssignment("assignment-2");
+              shiftAssignment(1);
             }
             if (
               event.key === "ArrowLeft" ||
               event.key === "ArrowUp"
             ) {
               event.preventDefault();
-              setActiveAssignment("assignment-1");
+              shiftAssignment(-1);
             }
             if (event.key === "Enter") {
               event.preventDefault();

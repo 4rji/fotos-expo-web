@@ -4,9 +4,11 @@ Simple Astro gallery for photo exhibitions:
 - black background
 - centered image
 - white elegant typography
-- cinematic intro curtain with `Assignment 1` / `Assignment 2` tabs
+- cinematic intro curtain with `Assignment 1` / `Assignment 2` / `Portraits` tabs
 - `Start Assignment 1` reads files from `public/assignment-1-gallery`
 - `Start Assignment 2` reads files from `public/assignment-2-gallery`
+- `Start Portraits` reads files from `public/portrait-gallery`
+- direct route `/portrait` redirects to the `Portraits` gallery
 - description shown in the top bar next to the title (compact/adaptive format)
 - starts in fullscreen when available
 - `Space` or `ArrowDown` works as `Next`, and `Backspace` or `ArrowUp` as `Previous`
@@ -25,7 +27,7 @@ npm run dev
 
 ## Add your photos and descriptions
 
-Put files in `public/assignment-1-gallery` or `public/assignment-2-gallery` with matching names:
+Put files in `public/assignment-1-gallery`, `public/assignment-2-gallery`, or `public/portrait-gallery` with matching names:
 
 ```text
 photo-01.jpg
